@@ -1,0 +1,8 @@
+Top left of the board is 0,0 (x, y)
+Bottom right is 15, 15
+
+Sticker #3 is at -1, 4
+Sticker #5 is at -1, 11
+Sticker #8  is at 16, 3
+Sticker #10 is at 16, 11
+
