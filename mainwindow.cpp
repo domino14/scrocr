@@ -63,7 +63,7 @@ void MainWindow::on_pushButtonDetectFiducials_clicked()
 
 void MainWindow::on_pushButtonWarpImage_clicked()
 {
-    latestMatImage = cv::imread("test4.jpg");
+    latestMatImage = cv::imread("test4.jpg", 1);
     fd->detectFiducials(QStringList() << "test4.jpg");
     while (fd->isRunning()) ;
     double topLeftR, topLeftC, botLeftR, botLeftC, topRightR, topRightC, botRightR, botRightC;
@@ -94,21 +94,34 @@ void MainWindow::on_pushButtonWarpImage_clicked()
     board_pts_found[3].x = botRightC; board_pts_found[3].y = botRightR;
     */
 
-    cv::Point2f pts1[] = {cv::Point2f(150, 150.), cv::Point2f(150, 300.), cv::Point2f(350, 300.), cv::Point2f(350, 150.)};
-    cv::Point2f pts2[] = {cv::Point2f(200, 200.), cv::Point2f(150, 300.), cv::Point2f(350, 300.), cv::Point2f(300, 200.)};
+    cv::Point2f pts_ideal[] = {cv::Point2f(-50,200),
+                          cv::Point2f(-50,550),
+                          cv::Point2f(800,150),
+                          cv::Point2f(800,550)};
+
+    cv::Point2f pts_actual[] = {cv::Point2f(topLeftC, topLeftR),
+                          cv::Point2f(botLeftC, botLeftR),
+                          cv::Point2f(topRightC, topRightR),
+                          cv::Point2f(botRightC, botRightR)};
 
 
     //cv::Mat transformMat = cv::getPerspectiveTransform(board_pts_found, board_pts_ideal);
-    cv::Mat transformMat = cv::getPerspectiveTransform(pts1, pts2);
+    cv::Mat transformMat = cv::getPerspectiveTransform(pts_actual, pts_ideal);
     qDebug() << "transformation mat" << transformMat.size().width << transformMat.size().height;
 
     cv::Mat newImage = latestMatImage.clone();
     qDebug() << newImage.size().width << newImage.size().height;
     qDebug() << latestMatImage.size().width << latestMatImage.size().height;
 
-    cv::warpPerspective(latestMatImage, newImage, transformMat, latestMatImage.size(), cv::INTER_LINEAR);
+    cv::Mat grayImage;
+    cv::cvtColor(latestMatImage, grayImage, CV_RGB2GRAY);
+
+    cv::warpPerspective(grayImage, newImage, transformMat, latestMatImage.size(), cv::INTER_LINEAR);
     qDebug() << "here 5";
-    IplImage img = IplImage(newImage);
+    cv::Mat rgbNew;
+    cv::cvtColor(newImage, rgbNew, CV_GRAY2RGB);
+
+    IplImage img = IplImage(rgbNew);
     qDebug() << "here 6";
     picItem->setPixmap(QPixmap::fromImage(Utilities::IplImageToQImage(&img)));
 }
